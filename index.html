@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebula Gate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            height: 100vh;
+            perspective: 1000px;
+        }
+        
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+            animation: fadeIn 2s ease-out;
+        }
+        
+        h1 {
+            font-size: 5rem;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #4facfe, #00f2fe, #a6c1ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(79, 172, 254, 0.7);
+            letter-spacing: 5px;
+            font-weight: 800;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.7);
+        }
+        
+        .bio {
+            font-size: 2.5rem;
+            margin-top: 30px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            background: rgba(10, 15, 30, 0.3);
+            padding: 15px 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            animation: pulse 3s infinite alternate;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 60px;
+            animation: floatUp 1.5s ease-out forwards;
+        }
+        
+        .social-link {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            background: rgba(20, 30, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(100, 150, 255, 0.5);
+            box-shadow: 0 0 25px rgba(79, 172, 254, 0.4);
+            transition: all 0.4s ease;
+            animation: float 6s ease-in-out infinite;
+            color: #fff;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .social-link:hover {
+            transform: scale(1.15) translateY(-15px);
+            box-shadow: 0 0 40px rgba(79, 172, 254, 0.9);
+            background: rgba(30, 50, 100, 0.9);
+            z-index: 100;
+        }
+        
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .social-link:hover::before {
+            opacity: 1;
+        }
+        
+        .social-link:nth-child(1) { animation-delay: 0s; color: #00f2fe; }
+        .social-link:nth-child(2) { animation-delay: 0.3s; color: #ff0000; }
+        .social-link:nth-child(3) { animation-delay: 0.6s; color: #1b2838; }
+        .social-link:nth-child(4) { animation-delay: 0.9s; color: #26a5e4; }
+        
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 5;
+        }
+        
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-25px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(60px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 15px rgba(79, 172, 254, 0.4); }
+            100% { transform: scale(1.03); box-shadow: 0 0 30px rgba(79, 172, 254, 0.8); }
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 5s) infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse at 20% 30%, 
+                rgba(79, 172, 254, 0.15) 0%, 
+                rgba(0, 10, 30, 0) 70%),
+                radial-gradient(ellipse at 80% 70%, 
+                rgba(255, 0, 100, 0.1) 0%, 
+                rgba(0, 10, 30, 0) 70%);
+            animation: nebulaPulse 30s infinite alternate;
+        }
+        
+        @keyframes nebulaPulse {
+            0% { transform: scale(1); opacity: 0.3; filter: blur(0px); }
+            100% { transform: scale(1.3); opacity: 0.7; filter: blur(10px); }
+        }
+        
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8),
+                        0 0 50px rgba(100, 150, 255, 0.5);
+            z-index: 2;
+        }
+        
+        .asteroid {
+            position: absolute;
+            background: linear-gradient(45deg, #555, #333);
+            border-radius: 20%;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            z-index: 3;
+        }
+        
+        .comet {
+            position: absolute;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(100, 200, 255, 0.8));
+            border-radius: 50%;
+            filter: blur(2px);
+            z-index: 4;
+            animation: cometFly 20s linear infinite;
+        }
+        
+        @keyframes cometFly {
+            0% { transform: translateX(-100vw) translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(100vw) translateY(100vh) rotate(20deg); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 3.5rem; }
+            .bio { font-size: 2rem; padding: 15px; }
+            .social-link { width: 70px; height: 70px; font-size: 2.2rem; }
+        }
+        
+        @media (max-width: 480px) {
+            h1 { font-size: 2.5rem; }
+            .bio { font-size: 1.6rem; }
+            .social-links { gap: 15px; margin-top: 40px; }
+            .social-link { width: 60px; height: 60px; font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="nebula"></div>
+    <div id="scene-container"></div>
+    
+    <div class="content">
+        <div class="header">
+            <h1>NEBULA GATE</h1>
+            <div class="bio">Yo, here's my biography.</div>
+        </div>
+        
+        <div class="social-links">
+            <a href="https://www.tiktok.com/@sort1k6" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
+            <a href="https://www.youtube.com/@Sort1k50" target="_blank" class="social-link"><i class="fab fa-youtube"></i></a>
+            <a href="https://steamcommunity.com/profiles/76561199174960259/" target="_blank" class="social-link"><i class="fab fa-steam"></i></a>
+            <a href="https://t.me/+MZ2vmJlZVnFjYjgy" target="_blank" class="social-link"><i class="fab fa-telegram"></i></a>
+        </div>
+    </div>
+
+    <script>
+        // Создание звёздного фона
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 300;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                const size = Math.random() * 3;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const duration = 2 + Math.random() * 8;
+                const delay = Math.random() * 5;
+                
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${posX}%`;
+                star.style.top = `${posY}%`;
+                star.style.animationDuration = `${duration}s`;
+                star.style.animationDelay = `${delay}s`;
+                star.style.opacity = Math.random();
+                
+                starsContainer.appendChild(star);
+            }
+            
+            // Создаем кометы
+            for (let i = 0; i < 3; i++) {
+                const comet = document.createElement('div');
+                comet.classList.add('comet');
+                
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = 15 + Math.random() * 15;
+                
+                comet.style.top = `${posY}%`;
+                comet.style.animationDuration = `${duration}s`;
+                comet.style.animationDelay = `${delay}s`;
+                
+                document.body.appendChild(comet);
+            }
+        }
+        
+        // Создание планет и астероидов
+        function createSpaceObjects() {
+            // Создаем несколько планет
+            for (let i = 0; i < 2; i++) {
+                const planet = document.createElement('div');
+                planet.classList.add('planet');
+                
+                const size = 150 + Math.random() * 200;
+                const posX = i === 0 ? 10 : 80;
+                const posY = i === 0 ? 10 : 80;
+                
+                planet.style.width = `${size}px`;
+                planet.style.height = `${size}px`;
+                planet.style.left = `${posX}%`;
+                planet.style.top = `${posY}%`;
+                
+                // Цвета планет
+                const colors = [
+                    'linear-gradient(135deg, #4facfe, #00f2fe, #4facfe)',
+                    'linear-gradient(135deg, #ff7e5f, #feb47b, #ff7e5f)'
+                ];
+                planet.style.background = colors[i];
+                
+                document.body.appendChild(planet);
+            }
+            
+            // Создаем астероиды
+            for (let i = 0; i < 20; i++) {
+                const asteroid = document.createElement('div');
+                asteroid.classList.add('asteroid');
+                
+                const size = 20 + Math.random() * 50;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const rotation = Math.random() * 360;
+                
+                asteroid.style.width = `${size}px`;
+                asteroid.style.height = `${size}px`;
+                asteroid.style.left = `${posX}%`;
+                asteroid.style.top = `${posY}%`;
+                asteroid.style.transform = `rotate(${rotation}deg)`;
+                
+                document.body.appendChild(asteroid);
+            }
+        }
+        
+        // Инициализация Three.js сцены
+        function initThreeScene() {
+            const container = document.getElementById('scene-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+            
+            // Создаем частицы для звёздного поля
+            const starGeometry = new THREE.BufferGeometry();
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.15,
+                transparent: true,
+                opacity: 0.8,
+                sizeAttenuation: true
+            });
+            
+            const starVertices = [];
+            for (let i = 0; i < 10000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x, y, z);
+            }
+            
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+            
+            // Создаем центральную планету
+            const planetGeometry = new THREE.SphereGeometry(80, 64, 64);
+            const planetMaterial = new THREE.MeshPhongMaterial({
+                color: 0x4facfe,
+                shininess: 100,
+                specular: 0xffffff,
+                emissive: 0x0a3d62,
+                emissiveIntensity: 0.3
+            });
+            const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+            planet.position.set(0, 0, -100);
+            scene.add(planet);
+            
+            // Создаем кольца вокруг планеты
+            const ringGeometry = new THREE.RingGeometry(100, 140, 64);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00f2fe,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.6
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 3;
+            ring.position.set(0, 0, -100);
+            scene.add(ring);
+            
+            // Создаем астероиды
+            const asteroids = [];
+            const asteroidGeometry = new THREE.IcosahedronGeometry(8, 0);
+            const asteroidMaterial = new THREE.MeshStandardMaterial({
+                color: 0x888888,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            
+            for (let i = 0; i < 100; i++) {
+                const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+                
+                // Позиция
+                const distance = 200 + Math.random() * 300;
+                const angle = Math.random() * Math.PI * 2;
+                asteroid.position.x = Math.cos(angle) * distance;
+                asteroid.position.y = (Math.random() - 0.5) * 300;
+                asteroid.position.z = Math.sin(angle) * distance - 100;
+                
+                // Масштаб
+                const scale = 0.5 + Math.random() * 3;
+                asteroid.scale.set(scale, scale, scale);
+                
+                // Вращение
+                asteroid.rotation.x = Math.random() * Math.PI;
+                asteroid.rotation.y = Math.random() * Math.PI;
+                
+                scene.add(asteroid);
+                asteroids.push({
+                    mesh: asteroid,
+                    speed: 0.001 + Math.random() * 0.005,
+                    angle: angle,
+                    distance: distance,
+                    height: asteroid.position.y
+                });
+            }
+            
+            // Освещение
+            const ambientLight = new THREE.AmbientLight(0x333333);
+            scene.add(ambientLight);
+            
+            const sunLight = new THREE.PointLight(0xffffff, 1.5, 1000);
+            sunLight.position.set(300, 300, 300);
+            scene.add(sunLight);
+            
+            const backLight = new THREE.DirectionalLight(0x00f2fe, 0.5);
+            backLight.position.set(-200, -200, -200);
+            scene.add(backLight);
+            
+            // Позиция камеры
+            camera.position.z = 300;
+            
+            // Анимация
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Вращение планеты
+                planet.rotation.y += 0.0015;
+                ring.rotation.y += 0.0008;
+                
+                // Движение астероидов
+                asteroids.forEach(asteroid => {
+                    asteroid.angle += asteroid.speed;
+                    asteroid.mesh.position.x = Math.cos(asteroid.angle) * asteroid.distance;
+                    asteroid.mesh.position.z = Math.sin(asteroid.angle) * asteroid.distance - 100;
+                    asteroid.mesh.rotation.x += 0.01;
+                    asteroid.mesh.rotation.y += 0.01;
+                });
+                
+                // Медленное движение камеры
+                const time = Date.now() * 0.0003;
+                camera.position.x = Math.sin(time * 0.2) * 150;
+                camera.position.y = Math.cos(time * 0.3) * 80;
+                camera.position.z = 300 + Math.cos(time * 0.1) * 80;
+                camera.lookAt(scene.position);
+                
+                renderer.render(scene, camera);
+            }
+            
+            // Обработка изменения размера окна
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            animate();
+        }
+        
+        // Инициализация при загрузке
+        window.onload = function() {
+            createStars();
+            createSpaceObjects();
+            initThreeScene();
+            
+            // Добавляем мерцание к тексту
+            const bioText = document.querySelector('.bio');
+            setInterval(() => {
+                bioText.style.textShadow = `0 0 ${10 + Math.random() * 20}px rgba(255, 255, 255, ${0.3 + Math.random() * 0.7})`;
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
