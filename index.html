@@ -224,13 +224,7 @@
             100% { transform: scale(1.3); opacity: 0.7; filter: blur(10px); }
         }
         
-        .planet {
-            position: absolute;
-            border-radius: 50%;
-            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8),
-                        0 0 50px rgba(100, 150, 255, 0.5);
-            z-index: 2;
-        }
+        /* УДАЛЕНО: Стили для .planet больше не нужны */
         
         .asteroid {
             position: absolute;
@@ -280,7 +274,7 @@
     <div class="content">
         <div class="header">
             <h1>NEBULA GATE</h1>
-            <div class="bio">Yo, check out my socials.</div>
+            <div class="bio">Yo, here's my biography.</div>
         </div>
         
         <div class="social-links">
@@ -335,32 +329,8 @@
             }
         }
         
-        // Создание планет и астероидов
+        // Создание астероидов (планеты удалены)
         function createSpaceObjects() {
-            // Создаем несколько планет
-            for (let i = 0; i < 2; i++) {
-                const planet = document.createElement('div');
-                planet.classList.add('planet');
-                
-                const size = 150 + Math.random() * 200;
-                const posX = i === 0 ? 10 : 80;
-                const posY = i === 0 ? 10 : 80;
-                
-                planet.style.width = `${size}px`;
-                planet.style.height = `${size}px`;
-                planet.style.left = `${posX}%`;
-                planet.style.top = `${posY}%`;
-                
-                // Цвета планет
-                const colors = [
-                    'linear-gradient(135deg, #4facfe, #00f2fe, #4facfe)',
-                    'linear-gradient(135deg, #ff7e5f, #feb47b, #ff7e5f)'
-                ];
-                planet.style.background = colors[i];
-                
-                document.body.appendChild(planet);
-            }
-            
             // Создаем астероиды
             for (let i = 0; i < 20; i++) {
                 const asteroid = document.createElement('div');
